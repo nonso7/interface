@@ -7,6 +7,24 @@ import {
 } from "../src/lib/mermaid"
 import { rehypeMermaid } from "../src/lib/rehype-mermaid"
 
+/**
+ * The subset of HAST these tests build and assert on. `rehypeMermaid` is
+ * typed against `any` and rewrites the tree in place, so the input literal
+ * has to be declared with the shape of the *output* nodes — otherwise TS
+ * infers the literal's own narrow type and the post-transform assertions
+ * (`figure.properties`, `scrollDiv.children`) do not typecheck.
+ */
+type HastNode = {
+  type: string
+  tagName?: string
+  value?: string
+  properties?: Record<string, unknown>
+  data?: { meta?: string }
+  children?: Array<HastNode>
+}
+
+type HastRoot = { type: string; children: Array<HastNode> }
+
 describe("DX-054: Build-time Mermaid diagram support", () => {
   const validFlowchart = `
 graph TD
@@ -140,7 +158,7 @@ graph TD
   })
 
   test("rehype plugin transforms fenced mermaid code block into figure HAST node", () => {
-    const tree = {
+    const tree: HastRoot = {
       type: "root",
       children: [
         {
@@ -171,32 +189,32 @@ graph TD
 
     const figure = tree.children[0]
     expect(figure.tagName).toBe("figure")
-    expect(figure.properties.className).toContain("mermaid-wrapper")
-    expect(figure.properties.role).toBe("figure")
+    expect(figure.properties?.className).toContain("mermaid-wrapper")
+    expect(figure.properties?.role).toBe("figure")
 
-    const scrollDiv = figure.children[0]
-    expect(scrollDiv.properties.className).toContain("mermaid-scroll")
-    expect(scrollDiv.properties.tabIndex).toBe(0)
+    const scrollDiv = figure.children?.[0]
+    expect(scrollDiv?.properties?.className).toContain("mermaid-scroll")
+    expect(scrollDiv?.properties?.tabIndex).toBe(0)
 
-    const lightDiv = scrollDiv.children[0]
-    const darkDiv = scrollDiv.children[1]
-    expect(lightDiv.properties.className).toContain("mermaid-diagram-light")
-    expect(lightDiv.properties.className).toContain("block")
-    expect(lightDiv.properties.className).toContain("dark:hidden")
+    const lightDiv = scrollDiv?.children?.[0]
+    const darkDiv = scrollDiv?.children?.[1]
+    expect(lightDiv?.properties?.className).toContain("mermaid-diagram-light")
+    expect(lightDiv?.properties?.className).toContain("block")
+    expect(lightDiv?.properties?.className).toContain("dark:hidden")
 
-    expect(darkDiv.properties.className).toContain("mermaid-diagram-dark")
-    expect(darkDiv.properties.className).toContain("hidden")
-    expect(darkDiv.properties.className).toContain("dark:block")
+    expect(darkDiv?.properties?.className).toContain("mermaid-diagram-dark")
+    expect(darkDiv?.properties?.className).toContain("hidden")
+    expect(darkDiv?.properties?.className).toContain("dark:block")
 
-    const figcaption = figure.children[1]
-    expect(figcaption.tagName).toBe("figcaption")
-    expect(figcaption.children[0].value).toBe(
+    const figcaption = figure.children?.[1]
+    expect(figcaption?.tagName).toBe("figcaption")
+    expect(figcaption?.children?.[0]?.value).toBe(
       "The complete SO4 trading and settlement data flow"
     )
   })
 
   test("rehype plugin fails when caption is missing in AST", () => {
-    const tree = {
+    const tree: HastRoot = {
       type: "root",
       children: [
         {

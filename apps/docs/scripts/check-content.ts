@@ -10,6 +10,32 @@ const pages = await loadPages()
 const errors: Array<string> = []
 const routes = new Set(pages.map((page) => page.route))
 
+/**
+ * DX-045's date rule can only be answered where git history is actually
+ * present. In a shallow clone — what `actions/checkout` produces by default —
+ * every file looks as though it were added by the single fetched commit, so
+ * `git log -1 -- <file>` returns the head commit's date for *all* of them and
+ * the rule would flag every page on every run. Detect that and skip, rather
+ * than reporting a date that git cannot really tell us.
+ */
+function isShallowRepository(): boolean {
+  const proc = Bun.spawnSync(["git", "rev-parse", "--is-shallow-repository"])
+  return proc.stdout.toString().trim() === "true"
+}
+
+/**
+ * A file with uncommitted changes is being updated right now, so its last
+ * commit predates the edit by definition. Comparing against it would make the
+ * rule unsatisfiable before a commit exists — the author would have to write
+ * the *previous* commit's date into a page they just rewrote.
+ */
+function hasUncommittedChanges(file: string): boolean {
+  const proc = Bun.spawnSync(["git", "status", "--porcelain", "--", file])
+  return proc.stdout.toString().trim().length > 0
+}
+
+const skipDateCheck = isShallowRepository()
+
 for (const page of pages) {
   const { description, status, title, updated } = page.frontmatter
   if (!title || title.length > 60)
@@ -23,13 +49,21 @@ for (const page of pages) {
     errors.push(`${page.route}: invalid status`)
 
   // DX-045: Validate updated date against git commit history if tracked
-  if (!page.file.endsWith(".generated.mdx") && status !== "draft") {
+  if (
+    !skipDateCheck &&
+    !page.file.endsWith(".generated.mdx") &&
+    status !== "draft" &&
+    !hasUncommittedChanges(page.file)
+  ) {
     try {
+      // Author date, not committer date: squash- and rebase-merges rewrite
+      // the committer date to the merge time, which would re-break every
+      // page touched by a pull request the moment it lands.
       const proc = Bun.spawnSync([
         "git",
         "log",
         "-1",
-        "--format=%cs",
+        "--format=%as",
         "--",
         page.file,
       ])

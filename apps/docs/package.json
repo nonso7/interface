@@ -10,7 +10,7 @@
     "lint:prose": "bun run scripts/lint-prose.ts",
     "format": "prettier --write \"content/**/*.mdx\" \"scripts/**/*.ts\" \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run && bun test scripts/content-loader.test.ts scripts/content.test.ts scripts/frontmatter.test.ts scripts/generate-graphql.test.ts scripts/image-pipeline.test.ts scripts/lint-prose.test.ts scripts/nav-builder.test.ts scripts/seo.test.ts scripts/shiki.test.ts scripts/sitemap.test.ts",
+    "test": "vitest run && bun test scripts/content-loader.test.ts scripts/content.test.ts scripts/frontmatter.test.ts scripts/generate-graphql.test.ts scripts/image-pipeline.test.ts scripts/lint-prose.test.ts scripts/mermaid.test.ts scripts/nav-builder.test.ts scripts/seo.test.ts scripts/shiki.test.ts scripts/sitemap.test.ts",
     "test:coverage": "vitest run --coverage",
     "check:content": "bun run scripts/check-content.ts",
     "check:links": "bun run scripts/check-links.ts",

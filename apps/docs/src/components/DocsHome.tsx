@@ -249,8 +249,8 @@ function KitchenSinkContent() {
         This is a warning callout indicating caution is required.
       </Callout>
 
-      <Callout variant="danger" title="Danger Callout">
-        This is a danger callout warning against collateral loss.
+      <Callout variant="caution" title="Caution Callout">
+        This is a caution callout warning against collateral loss.
       </Callout>
 
       <Table>
@@ -306,7 +306,11 @@ function KitchenSinkContent() {
         address="CB...EXAMPLE_ROUTER_CONTRACT_ADDRESS"
       />
 
-      <Mermaid chart="graph TD;\n  A[Order Created] --> B[Keeper Executed];\n  B --> C[Position Open];" />
+      <Mermaid
+        chart={"graph TD\n  A[Order Created] --> B[Keeper Executed]\n  B --> C[Position Open]"}
+        title="Order lifecycle"
+        caption="An order moves from created, through keeper execution, to an open position."
+      />
     </div>
   )
 }

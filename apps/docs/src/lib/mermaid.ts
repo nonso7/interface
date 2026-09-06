@@ -830,7 +830,10 @@ function buildFlowchartSvg(
 ): string {
   const isLight = theme === "light"
 
-  // Token palette colors matching @workspace/ui globals.css
+  // sRGB mirrors of the @workspace/ui roles (surface/text/border/primary).
+  // Both theme variants are serialised into the markup at build time, so
+  // these cannot be var() references — see the mermaid.ts entry in
+  // scripts/check-design-tokens.ts.
   const colors = {
     bg: isLight ? "#f8fafc" : "#0b1220",
     nodeFill: isLight ? "#ffffff" : "#1e293b",
@@ -925,6 +928,7 @@ function buildSequenceSvg(
 ): string {
   const isLight = theme === "light"
 
+  // sRGB mirrors of the @workspace/ui roles — see buildFlowchartSvg above.
   const colors = {
     bg: isLight ? "#f8fafc" : "#0b1220",
     actorFill: isLight ? "#ffffff" : "#1e293b",

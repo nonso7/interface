@@ -25,20 +25,22 @@ export function ReadingProgress() {
     }
 
     let ticking = false;
-    function update() {
+    // Arrow functions, not declarations: a hoisted `function` loses the
+    // `if (!bar) return` narrowing above, so `bar` would read as nullable.
+    const update = () => {
       const doc = document.documentElement;
       const scrollTop = window.scrollY || doc.scrollTop;
       const scrollHeight = doc.scrollHeight - window.innerHeight;
       const progress = scrollHeight > 0 ? Math.min(scrollTop / scrollHeight, 1) : 0;
       bar.style.transform = `scaleX(${progress})`;
       ticking = false;
-    }
-    function onScroll() {
+    };
+    const onScroll = () => {
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(update);
       }
-    }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     update();

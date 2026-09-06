@@ -1,8 +1,8 @@
 ---
 title: Liquidation
-description: How to compute your own liquidation price on SO4, what the maintenance margin threshold is, what happens when it breaks, and what you keep.
-updated: 2026-09-02
-status: beta
+description: How maintenance margin and changing position value determine whether a leveraged position may be liquidated.
+updated: 2026-09-04
+status: stable
 ---
 
 A position is liquidated when its equity falls below the <Term id="maintenance-margin">maintenance margin</Term> — a small fraction of position size that must remain after losses. The interface computes the price at which that happens as `entryPrice ∓ (collateral − maintenanceMargin) ÷ positionTokens`, using a maintenance margin of 0.5% of size. On a 10x position, that is a 9.5% adverse move. When it is reached, the position is closed against the pool, fees are taken from what is left, and in practice you should expect to keep close to nothing.
